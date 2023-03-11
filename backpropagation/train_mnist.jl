@@ -27,6 +27,7 @@ function network(xs, ys, lr, batch_size, max_epoch)
 	w₂ = rand(10, 300) - rand(10, 300)
 	b₂ = rand(10) - rand(10)
 
+
 	epoch = 0
 	cnt = size(xs)[1] - 1
 
@@ -51,13 +52,21 @@ function network(xs, ys, lr, batch_size, max_epoch)
 
 				e = sum(mse.(a₂, y)) / 10
 
-				dw₂ += 2/10 * (a₂ - y) .* sigmoid_d.(z₂) .* transpose(a₁)
-				db₂ += 2/10 * (a₂ - y) .* sigmoid_d.(z₂)
+				# dw₂ += 2/10 * (a₂ - y) .* sigmoid_d.(z₂) .* transpose(a₁)
+				# db₂ += 2/10 * (a₂ - y) .* sigmoid_d.(z₂)
+
+				tmp = 2/10 * (a₂ - y) .* sigmoid_d.(z₂)
+				dw₂ += tmp .* transpose(a₁)
+				db₂ += tmp
 
 				da₁ = transpose(sum(2 * (a₂ - y) .* sigmoid_d.(z₂) .* w₂, dims = 1))
 
-				dw₁ += da₁ .* sigmoid.(z₁) .* transpose(x)
-				db₁ += da₁ .* sigmoid.(z₁)
+				# dw₁ += da₁ .* sigmoid.(z₁) .* transpose(x)
+				# db₁ += da₁ .* sigmoid.(z₁)
+				tmp = da₁ .* sigmoid.(z₁)
+				dw₁ += tmp .* transpose(x)
+				db₁ += tmp
+
 			end
 
 			t1 = time()
@@ -67,7 +76,7 @@ function network(xs, ys, lr, batch_size, max_epoch)
 			b₁ = b₁ - lr .* db₁ ./ batch_size
 			b₂ = b₂ - lr .* db₂ ./ batch_size
 
-			time_cost = Int(t1-t0)
+			time_cost = round(t1-t0, digits=1)
             @show step, e, time_cost
 		end
         @show epoch, e
@@ -91,7 +100,8 @@ end
 
 function main()
 	xs, ys = load_data("backpropagation/data/mnist_train.csv")
-	w₁, b₁, w₂, b₂ = network(xs, ys, 1e-4, 100, 2)
+	@show size(xs)
+	w₁, b₁, w₂, b₂ = network(xs, ys, 1e-3, 100, 3)
 
     xt, yt = load_data("backpropagation/data/mnist_test.csv")
     forward(xt, yt, w₁, b₁, w₂, b₂)

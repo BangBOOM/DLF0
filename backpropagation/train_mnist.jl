@@ -38,6 +38,8 @@ function network(xs, ys, lr, batch_size, max_epoch)
 			dw₂ = zeros(Float64, size(w₂)...)
 			db₁ = zeros(Float64, size(b₁)...)
 			db₂ = zeros(Float64, size(b₂)...)
+			
+			t0 = time()
 			@inbounds @simd for i in 1:batch_size
 				x = xs[step+i, :]
 				y = ys[step+i, :]
@@ -58,12 +60,15 @@ function network(xs, ys, lr, batch_size, max_epoch)
 				db₁ += da₁ .* sigmoid.(z₁)
 			end
 
+			t1 = time()
+
 			w₁ = w₁ - lr .* dw₁ ./ batch_size
 			w₂ = w₂ - lr .* dw₂ ./ batch_size
 			b₁ = b₁ - lr .* db₁ ./ batch_size
 			b₂ = b₂ - lr .* db₂ ./ batch_size
 
-            @show step, e
+			time_cost = Int(t1-t0)
+            @show step, e, time_cost
 		end
         @show epoch, e
 	end
@@ -86,7 +91,7 @@ end
 
 function main()
 	xs, ys = load_data("backpropagation/data/mnist_train.csv")
-	w₁, b₁, w₂, b₂ = network(xs, ys, 0.001, 100, 2)
+	w₁, b₁, w₂, b₂ = network(xs, ys, 1e-4, 100, 2)
 
     xt, yt = load_data("backpropagation/data/mnist_test.csv")
     forward(xt, yt, w₁, b₁, w₂, b₂)

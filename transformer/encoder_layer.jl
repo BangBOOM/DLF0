@@ -17,7 +17,6 @@ struct EncoderLayer
     HEAD_COUNT::Int
     TOKEN_COUNT::Int
     TOKEN_DIM::Int
-    ATTEN_DIM::Int
 
     WQ::Array{Float32}
     WK::Array{Float32}
@@ -26,15 +25,15 @@ struct EncoderLayer
     W::Array{Float32}
     WF::Array{Float32}
 
-    EncoderLayer(HEAD_COUNT::Int, TOKEN_COUNT::Int, TOKEN_DIM::Int, ATTEN_DIM::Int) = new(
+    EncoderLayer(HEAD_COUNT::Int, TOKEN_COUNT::Int, TOKEN_DIM::Int) = new(
         HEAD_COUNT,
         TOKEN_COUNT,
         TOKEN_DIM,
         ATTEN_DIM,
-        my_rand(HEAD_COUNT, TOKEN_DIM, ATTEN_DIM),
-        my_rand(HEAD_COUNT, TOKEN_DIM, ATTEN_DIM),
-        my_rand(HEAD_COUNT, TOKEN_DIM, ATTEN_DIM),
-        my_rand(ATTEN_DIM * HEAD_COUNT, TOKEN_DIM),
+        my_rand(HEAD_COUNT, TOKEN_DIM, TOKEN_DIM//HEAD_COUNT),
+        my_rand(HEAD_COUNT, TOKEN_DIM, ATTEN_DIM//HEAD_COUNT),
+        my_rand(HEAD_COUNT, TOKEN_DIM, ATTEN_DIM//HEAD_COUNT),
+        my_rand(TOKEN_DIM, TOKEN_DIM),
         my_rand(TOKEN_DIM, TOKEN_DIM)
     )
 end
@@ -71,6 +70,6 @@ function forward(layer::EncoderLayer, tokens::Array{Float32})
 end
 
 tokens = my_rand(1024, 4096)
-layer = EncoderLayer(16, 1024, 4096, 256)
+layer = EncoderLayer(16, 1024, 4096)
 
 @benchmark forward($layer, $tokens)

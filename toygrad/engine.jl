@@ -23,7 +23,6 @@ function Base.:+(a::Tensor{T}, b::Tensor{T}) where {T<:Real}
     out
 end
 
-
 function Base.:*(a::T, b::Tensor{T}) where {T<:Real}
     out = Tensor{T}(a * b.data, Set{Tensor{T}}([b]), "$a*")
     function _backward()
